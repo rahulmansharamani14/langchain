@@ -1077,7 +1077,12 @@ class ChatHuggingFace(BaseChatModel):
                     "schema": schema,
                 },
             )
-            output_parser = JsonOutputParser()  # type: ignore[arg-type]
+            # Use PydanticOutputParser for Pydantic models, JsonOutputParser otherwise
+            if is_pydantic_schema:
+                output_parser = PydanticOutputParser(pydantic_object=schema)  # type: ignore[arg-type]
+            else:
+                output_parser = JsonOutputParser()  # type: ignore[arg-type]
+
         elif method == "json_mode":
             llm = self.bind(
                 response_format={"type": "json_object"},
