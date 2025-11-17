@@ -1,15 +1,19 @@
 """Pytest conftest."""
 
+from __future__ import annotations
+
 import gzip
-from os import PathLike
 from pathlib import Path
-from typing import Any, Union, cast
+from typing import TYPE_CHECKING, Any, cast
 
 import pytest
 import yaml
 from vcr import VCR
 from vcr.persisters.filesystem import CassetteNotFoundError
 from vcr.request import Request
+
+if TYPE_CHECKING:
+    from os import PathLike
 
 
 class CustomSerializer:
@@ -48,11 +52,13 @@ class CustomSerializer:
 
 
 class CustomPersister:
-    """A custom persister for VCR that uses the ``CustomSerializer``."""
+    """A custom persister for VCR that uses the `CustomSerializer`."""
 
     @classmethod
     def load_cassette(
-        cls, cassette_path: Union[str, PathLike[str]], serializer: CustomSerializer
+        cls,
+        cassette_path: str | PathLike[str],
+        serializer: CustomSerializer,
     ) -> tuple[dict, dict]:
         """Load a cassette from a file."""
         # If cassette path is already Path this is a no-op
@@ -67,7 +73,7 @@ class CustomPersister:
 
     @staticmethod
     def save_cassette(
-        cassette_path: Union[str, PathLike[str]],
+        cassette_path: str | PathLike[str],
         cassette_dict: dict,
         serializer: CustomSerializer,
     ) -> None:
@@ -96,7 +102,7 @@ _BASE_FILTER_HEADERS = [
 def _base_vcr_config() -> dict:
     """Return VCR configuration that every cassette will receive.
 
-    (Anything permitted by ``vcr.VCR(**kwargs)`` can be put here.)
+    (Anything permitted by `vcr.VCR(**kwargs)` can be put here.)
     """
     return {
         "record_mode": "once",
